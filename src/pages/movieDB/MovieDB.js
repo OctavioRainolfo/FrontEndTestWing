@@ -65,42 +65,47 @@ function MovieDB() {
     async function getMovie(ID) {
         if (ID !== undefined) {
             if (VerifyExistingId(ID) === false) {
+                console.log("aqui", ID)
 
                 await api.request.get(api.movie + ID + api.apiText + api.key)
                     .then(response => {
-                        console.log("aqui", movieCredits)
-                        var tempMovie =
-                        {
-                            movieTitle: response.data.title,
-                            moviePoster: response.data.poster_path,
-                            movieBackground: response.data.backdrop_path,
-                            movieID: response.data.id,
-                            movieRating: response.data.vote_average,
-                            movieRelesed: response.data.release_date,
-                            movieDuration: response.data.runtime,
-                            movieOverview: response.data.overview,
-                        }
-                        getCredit(ID)
-                        getVideo(ID)
-                        console.log(movie.length)
+                        getCredit(ID).then(() => {
+                            getVideo(ID).then(() => {
+                                console.log("aqui", response)
+                                var tempMovie =
+                                {
+                                    movieTitle: response.data.title,
+                                    moviePoster: response.data.poster_path,
+                                    movieBackground: response.data.backdrop_path,
+                                    movieID: response.data.id,
+                                    movieRating: response.data.vote_average,
+                                    movieRelesed: response.data.release_date,
+                                    movieCast: movieCredits,
+                                    movieTrailer: movieVideo,
+                                    movieDuration: response.data.runtime,
+                                    movieOverview: response.data.overview,
+                                }
 
-                        var tempArray = movieList;
-                        tempArray[movieList.length -1 ] = tempMovie;
-                        setMovie([tempMovie]);
-                        setMovieQty(movieQty + 1);
-                        console.log("else", tempArray)
-                        console.log("else", movieList)
-                        setMovieList(tempArray);
-                        localStorage.setItem("Filmes Salvos", JSON.stringify(tempArray))
-
-                        console.log("else movielist", movieList)
-
+                                if (movieHighlight.movieID === undefined) {
+                                    setMovieHighlight(tempMovie)
+                                }
+                                if (movieList.length === 0) {
+                                    setMovieList([tempMovie])
+                                }
+                                else {
+                                    var tempArray = movieList;
+                                    tempArray.push(tempMovie);
+                                    setMovieList(tempArray);
+                                    setMovieQty(tempArray.length);
+                                    localStorage.setItem("Filmes Salvos", JSON.stringify(tempArray));
+                                }
+                            })
+                        })
                     })
 
                     .catch(error => {
                         console.log(error);
                     });
-
             }
             else {
                 console.log("filme ja existe")
@@ -111,17 +116,7 @@ function MovieDB() {
     async function getCredit(ID) {
         await api.request.get(api.movie + ID + api.credits + api.apiText + api.key)
             .then(response => {
-                var credito = {
-                    creditos: response.data.cast,
-                    id: ID,
-                }
-                var current = JSON.parse(localStorage.getItem("Creditos"))
-                if (current === null) {
-                    localStorage.setItem("Creditos", JSON.stringify([credito]))
-                }
-                else {
-                    localStorage.setItem("Creditos", JSON.stringify([...current, credito]))
-                }
+                setMovieCredits(response.data.cast)
             })
             .catch(error => {
                 console.log(error);
@@ -131,17 +126,8 @@ function MovieDB() {
     async function getVideo(ID) {
         await api.request.get(api.movie + ID + api.videos + api.apiText + api.key)
             .then(response => {
-                var video = {
-                    videos: response.data.results,
-                    id: ID,
-                }
-                var current = JSON.parse(localStorage.getItem("Videos"))
-                if (current === null) {
-                    localStorage.setItem("Videos", JSON.stringify([video]))
-                }
-                else {
-                    localStorage.setItem("Videos", JSON.stringify([...current, video]))
-                }
+                console.log("videos", response.data.results)
+                setMovieVideo(response.data.results)
             })
             .catch(error => {
                 console.log(error);
@@ -297,7 +283,10 @@ function MovieDB() {
                             Avaliação Dos usuários
                         </div>
                     ) : (
-                        movieList.map((item, index) => {
+                            movieList.map((item, index) => {
+                                if (index  ===  0) {
+                                    return;
+                            }
                             return (
                                 <div key={index} className='movie' onClick={() => {
                                     console.log(item)
