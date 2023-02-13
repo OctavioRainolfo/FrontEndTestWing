@@ -1,0 +1,26 @@
+.headerMovieDB {
+    background-color: #0d253f;
+    color: #ffffff;
+    display: flex;
+    justify-content:center;
+    align-items: center;
+    width: 100%;
+}
+
+.subMedia {
+    display: flex;
+    padding: 10px 0;
+    align-items: center;
+    justify-content: start;
+    width: 100%;
+    min-height: 84px;
+}
+
+.logoDiv  {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    margin-left: 5%;
+    width: 100%;
+    height: 100%;
+}
