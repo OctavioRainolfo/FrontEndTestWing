@@ -28,7 +28,6 @@ function MovieDB() {
         await api.request.get(api.search + api.apiText + api.key + "&query=" + search)
             .then(response => {
                 setSearchFind(response.data.results)
-                console.log(response.data)
                 setLoading(false)
             })
             .catch(error => {
@@ -56,8 +55,10 @@ function MovieDB() {
             var filmesFormatados = JSON.parse(filmes);
             setMovieList(filmesFormatados);
             setMovieQty(filmesFormatados.length);
+            if (movieHighlight.movieID === undefined) {
+                setMovieHighlight(filmesFormatados[1])
+            }
             setFirstLoad(false);
-            console.log("aqui localstorage", filmesFormatados)
         }
 
     }
@@ -65,13 +66,11 @@ function MovieDB() {
     async function getMovie(ID) {
         if (ID !== undefined) {
             if (VerifyExistingId(ID) === false) {
-                console.log("aqui", ID)
 
                 await api.request.get(api.movie + ID + api.apiText + api.key)
                     .then(response => {
                         getCredit(ID).then(() => {
                             getVideo(ID).then(() => {
-                                console.log("aqui", response)
                                 var tempMovie =
                                 {
                                     movieTitle: response.data.title,
@@ -126,7 +125,6 @@ function MovieDB() {
     async function getVideo(ID) {
         await api.request.get(api.movie + ID + api.videos + api.apiText + api.key)
             .then(response => {
-                console.log("videos", response.data.results)
                 setMovieVideo(response.data.results)
             })
             .catch(error => {
@@ -200,10 +198,6 @@ function MovieDB() {
                 )}
 
             </div>
-
-            <button onClick={() => {
-                console.log(movieList)
-            }}>log</button>
 
             {localStorage.getItem("Filmes Salvos") !== null ? (
 
@@ -289,7 +283,6 @@ function MovieDB() {
                             }
                             return (
                                 <div key={index} className='movie' onClick={() => {
-                                    console.log(item)
                                     setMovieHighlight(item)
                                 }}>
                                     <img src={api.image + item.moviePoster} alt='movie' className='moviePoster' />
